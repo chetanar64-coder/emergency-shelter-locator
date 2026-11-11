@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emergency Shelter & Resource Locator</title>
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-icon">🏠</span>
+      <div>
+        <h1>Emergency Shelter & Resource Locator</h1>
+        <p class="subtitle">SDG 11 · Sustainable Cities and Communities</p>
+      </div>
+    </div>
+    <div class="status-badge">
+      <span class="dot"></span> Live
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <main class="layout">
+
+    <!-- Sidebar: shelter list -->
+    <aside class="sidebar">
+      <h2>Nearby Shelters</h2>
+      <p class="muted">Bengaluru · dummy data</p>
+
+      <ul id="shelter-list" class="shelter-list">
+        <!-- Populated by JS -->
+      </ul>
+
+      <div class="legend">
+        <h3>Legend</h3>
+        <div><span class="pin open"></span> Open</div>
+        <div><span class="pin full"></span> Full</div>
+        <div><span class="pin closed"></span> Closed</div>
+      </div>
+    </aside>
+
+    <!-- Map container -->
+    <section class="map-wrap">
+      <div id="map"></div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <span>© 2026 Emergency Shelter Locator · OpenStreetMap & Leaflet</span>
+  </footer>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <!-- App logic -->
+  <script>
+    /* ---------------------------------------------------------
+       1. Dummy shelter data (Bengaluru)
+       --------------------------------------------------------- */
+    const shelters = [
+      {
+        id: 1,
+        name: "Indira Gandhi Community Hall",
+        address: "Sampangi Rama Nagar, Bengaluru",
+        lat: 12.9716,
+        lng: 77.5946,
+        status: "open",
+        capacity: { total: 200, occupied: 120 },
+        resources: {
+          beds: 80,
+          food: "Available",
+          water: "Available",
+          medical: "Available",
+          blankets: 50,
+          power: "Yes"
+        },
+        contact: "+91 80 1234 5678"
+      },
+      {
+        id: 2,
+        name: "Koramangala Relief Centre",
+        address: "Koramangala 5th Block, Bengaluru",
+        lat: 12.9352,
+        lng: 77.6245,
+        status: "full",
+        capacity: { total: 150, occupied: 150 },
+        resources: {
+          beds: 0,
+          food: "Low",
+          water: "Available",
+          medical: "Low",
+          blankets: 10,
+          power: "Yes"
+        },
+        contact: "+91 80 8765 4321"
+      }
+    ];
+
+    /* ---------------------------------------------------------
+       2. Initialize map
+       --------------------------------------------------------- */
+    const map = L.map("map", {
+      center: [12.9716, 77.5946],   // Bengaluru centre
+      zoom: 12,
+      zoomControl: true
+    });
+
+    // OpenStreetMap tiles
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    /* ---------------------------------------------------------
+       3. Custom colored markers
+       --------------------------------------------------------- */
+    function makeIcon(color) {
+      return L.divIcon({
+        className: "custom-pin",
+        html: `<div class="pin-body" style="background:${color};"></div>`,
+        iconSize: [26, 36],
+        iconAnchor: [13, 36],
+        popupAnchor: [0, -34]
+      });
+    }
+
+    const colors = {
+      open: "#16a34a",   // green
+      full: "#dc2626",   // red
+      closed: "#6b7280"  // grey
+    };
+
+    /* ---------------------------------------------------------
+       4. Popup HTML builder
+       --------------------------------------------------------- */
+    function buildPopup(s) {
+      const free = s.capacity.total - s.capacity.occupied;
+      const pct  = Math.round((s.capacity.occupied / s.capacity.total) * 100);
+
+      const res = s.resources;
+      const resRow = (label, val) =>
+        `<div class="res-row"><span>${label}</span><b>${val}</b></div>`;
+
+      return `
+        <div class="popup">
+          <div class="popup-head">
+            <h3>${s.name}</h3>
+            <span class="badge ${s.status}">${s.status.toUpperCase()}</span>
+          </div>
+          <p class="addr">📍 ${s.address}</p>
+
+          <div class="capacity">
+            <div class="cap-bar">
+              <div class="cap-fill" style="width:${pct}%; background:${colors[s.status]};"></div>
+            </div>
+            <p class="cap-text">
+              <b>${free}</b> / ${s.capacity.total} beds free
+            </p>
+          </div>
+
+          <div class="res-grid">
+            ${resRow("🛏 Beds", res.beds)}
+            ${resRow("🍞 Food", res.food)}
+            ${resRow("💧 Water", res.water)}
+            ${resRow("🏥 Medical", res.medical)}
+            ${resRow("🧣 Blankets", res.blankets)}
+            ${resRow("⚡ Power", res.power)}
+          </div>
+
+          <p class="contact">📞 ${s.contact}</p>
+        </div>
+      `;
+    }
+
+    /* ---------------------------------------------------------
+       5. Add markers + fill sidebar list
+       --------------------------------------------------------- */
+    const listEl = document.getElementById("shelter-list");
+
+    shelters.forEach((s) => {
+      const marker = L.marker([s.lat, s.lng], { icon: makeIcon(colors[s.status]) })
+        .addTo(map)
+        .bindPopup(buildPopup(s), { maxWidth: 300 });
+
+      // Sidebar card
+      const li = document.createElement("li");
+      li.className = "shelter-card";
+      li.innerHTML = `
+        <div class="card-head">
+          <span class="dot ${s.status}"></span>
+          <strong>${s.name}</strong>
+        </div>
+        <p class="card-addr">${s.address}</p>
+        <p class="card-meta">
+          ${s.capacity.total - s.capacity.occupied}/${s.capacity.total} beds ·
+          <span class="status-${s.status}">${s.status}</span>
+        </p>
+      `;
+      li.addEventListener("click", () => {
+        map.flyTo([s.lat, s.lng], 15, { duration: 1 });
+        marker.openPopup();
+      });
+      listEl.appendChild(li);
+    });
+
+    /* ---------------------------------------------------------
+       6. Fit map to all markers (nice touch)
+       --------------------------------------------------------- */
+    const bounds = L.latLngBounds(shelters.map((s) => [s.lat, s.lng]));
+    map.fitBounds(bounds, { padding: [40, 40] });
+
+  </script>
+</body>
+</html>

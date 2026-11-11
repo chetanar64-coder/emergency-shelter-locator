@@ -1,0 +1,180 @@
+/* ---------- Reset & base ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ---------- Header ---------- */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  background: linear-gradient(90deg, #1e293b, #0f172a);
+  border-bottom: 1px solid #1e293b;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-icon { font-size: 28px; }
+.app-header h1 { font-size: 18px; font-weight: 600; color: #f8fafc; }
+.subtitle { font-size: 12px; color: #94a3b8; }
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #86efac;
+  background: #052e16;
+  border: 1px solid #166534;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+.status-badge .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #22c55e; box-shadow: 0 0 6px #22c55e;
+  animation: pulse 1.6s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+
+/* ---------- Layout ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  background: #111827;
+  border-right: 1px solid #1f2937;
+  padding: 18px;
+  overflow-y: auto;
+}
+.sidebar h2 { font-size: 15px; margin-bottom: 4px; color: #f1f5f9; }
+.muted { font-size: 12px; color: #94a3b8; margin-bottom: 14px; }
+
+.shelter-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+.shelter-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: transform .15s ease, border-color .15s ease, background .15s;
+}
+.shelter-card:hover {
+  transform: translateY(-2px);
+  border-color: #3b82f6;
+  background: #243447;
+}
+.card-head { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 4px; }
+.card-addr { font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
+.card-meta { font-size: 12px; color: #cbd5e1; }
+
+.status-open   { color: #4ade80; }
+.status-full   { color: #f87171; }
+.status-closed { color: #9ca3af; }
+
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  display: inline-block;
+}
+.dot.open   { background: #22c55e; }
+.dot.full   { background: #ef4444; }
+.dot.closed { background: #6b7280; }
+
+/* Legend */
+.legend {
+  margin-top: 24px;
+  padding-top: 14px;
+  border-top: 1px dashed #334155;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+.legend h3 { font-size: 12px; margin-bottom: 8px; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; }
+.legend div { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.pin { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.pin.open   { background: #22c55e; }
+.pin.full   { background: #ef4444; }
+.pin.closed { background: #6b7280; }
+
+/* ---------- Map ---------- */
+.map-wrap { position: relative; }
+#map { width: 100%; height: 100%; min-height: 500px; }
+
+/* ---------- Custom marker pin ---------- */
+.custom-pin .pin-body {
+  width: 22px; height: 22px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+  margin-left: 2px;
+}
+
+/* ---------- Popup ---------- */
+.popup { font-size: 13px; color: #0f172a; min-width: 240px; }
+.popup-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.popup-head h3 { font-size: 14px; color: #0f172a; }
+.badge {
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; color: #fff;
+}
+.badge.open   { background: #16a34a; }
+.badge.full   { background: #dc2626; }
+.badge.closed { background: #6b7280; }
+
+.addr { font-size: 12px; color: #475569; margin-bottom: 8px; }
+
+.capacity { margin: 8px 0; }
+.cap-bar {
+  height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;
+}
+.cap-fill { height: 100%; transition: width .4s ease; }
+.cap-text { font-size: 11px; color: #334155; margin-top: 4px; }
+
+.res-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px;
+  background: #f1f5f9; padding: 8px; border-radius: 8px; margin: 8px 0;
+}
+.res-row { display: flex; justify-content: space-between; font-size: 11px; color: #1e293b; }
+.res-row b { color: #0f172a; }
+
+.contact { font-size: 12px; color: #334155; margin-top: 6px; }
+
+/* Leaflet popup tweak */
+.leaflet-popup-content-wrapper { border-radius: 10px; }
+.leaflet-popup-content { margin: 12px 14px; }
+
+/* ---------- Footer ---------- */
+.app-footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 12px;
+  color: #94a3b8;
+  background: #0b1220;
+  border-top: 1px solid #1e293b;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .sidebar { max-height: 220px; border-right: none; border-bottom: 1px solid #1f2937; }
+  #map { min-height: 60vh; }
+  .app-header h1 { font-size: 15px; }
+}
