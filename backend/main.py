@@ -20,15 +20,13 @@ class ShelterCreate(BaseModel):
     longitude: float
     total_beds: int
     available_beds: int
-    food_status: str = "HIGH"
-    water_status: str = "HIGH"
-    medical_status: str = "HIGH"
+    food_pkts: int = 0
+    water_liters: int = 0
 
 class ShelterUpdate(BaseModel):
     available_beds: int
-    food_status: str
-    water_status: str
-    medical_status: str
+    food_pkts: int
+    water_liters: int
 
 @app.get("/")
 def health_check():
@@ -41,12 +39,10 @@ def get_all_shelters():
         cursor = conn.cursor(dictionary=True)
         query = """
             SELECT 
-                s.id, s.name, s.address, s.latitude, s.longitude, 
-                s.total_beds, s.available_beds, s.is_active,
-                r.food_status, r.water_status, r.medical_status, r.last_updated
-            FROM shelters s
-            LEFT JOIN shelter_resources r ON s.id = r.shelter_id
-            WHERE s.is_active = TRUE
+                id, name, address, latitude, longitude, 
+                total_beds, available_beds, food_pkts, water_liters, is_active
+            FROM shelters
+            WHERE is_active = TRUE
         """
         cursor.execute(query)
         shelters = cursor.fetchall()
@@ -63,12 +59,10 @@ def get_shelter(shelter_id: int):
         cursor = conn.cursor(dictionary=True)
         query = """
             SELECT 
-                s.id, s.name, s.address, s.latitude, s.longitude, 
-                s.total_beds, s.available_beds, s.is_active,
-                r.food_status, r.water_status, r.medical_status, r.last_updated
-            FROM shelters s
-            LEFT JOIN shelter_resources r ON s.id = r.shelter_id
-            WHERE s.id = %s
+                id, name, address, latitude, longitude, 
+                total_beds, available_beds, food_pkts, water_liters, is_active
+            FROM shelters
+            WHERE id = %s
         """
         cursor.execute(query, (shelter_id,))
         shelter = cursor.fetchone()
@@ -89,23 +83,16 @@ def create_shelter(shelter: ShelterCreate):
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO shelters (name, address, latitude, longitude, total_beds, available_beds)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO shelters (name, address, latitude, longitude, total_beds, available_beds, food_pkts, water_liters)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
-            (shelter.name, shelter.address, shelter.latitude, shelter.longitude, shelter.total_beds, shelter.available_beds)
+            (shelter.name, shelter.address, shelter.latitude, shelter.longitude, shelter.total_beds, shelter.available_beds, shelter.food_pkts, shelter.water_liters)
         )
         new_id = cursor.lastrowid
-        cursor.execute(
-            """
-            INSERT INTO shelter_resources (shelter_id, food_status, water_status, medical_status)
-            VALUES (%s, %s, %s, %s)
-            """,
-            (new_id, shelter.food_status, shelter.water_status, shelter.medical_status)
-        )
         conn.commit()
         cursor.close()
         conn.close()
-        return {"id": new_id, "message": "Shelter and resource records created successfully"}
+        return {"id": new_id, "message": "Shelter created successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -115,25 +102,21 @@ def update_shelter(shelter_id: int, shelter: ShelterUpdate):
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE shelters SET available_beds = %s WHERE id = %s",
-            (shelter.available_beds, shelter_id)
+            """
+            UPDATE shelters 
+            SET available_beds = %s, food_pkts = %s, water_liters = %s 
+            WHERE id = %s
+            """,
+            (shelter.available_beds, shelter.food_pkts, shelter.water_liters, shelter_id)
         )
         if cursor.rowcount == 0:
             cursor.close()
             conn.close()
             raise HTTPException(status_code=404, detail="Shelter not found")
-        cursor.execute(
-            """
-            UPDATE shelter_resources 
-            SET food_status = %s, water_status = %s, medical_status = %s 
-            WHERE shelter_id = %s
-            """,
-            (shelter.food_status, shelter.water_status, shelter.medical_status, shelter_id)
-        )
         conn.commit()
         cursor.close()
         conn.close()
-        return {"message": "Shelter beds and resource statuses updated successfully"}
+        return {"message": "Shelter beds and supplies updated successfully"}
     except HTTPException:
         raise
     except Exception as e:
