@@ -1,3 +1,4 @@
+
 CREATE DATABASE IF NOT EXISTS emergency_shelter;
 USE emergency_shelter;
 
@@ -17,6 +18,8 @@ CREATE TABLE shelters (
     longitude DECIMAL(11,8) NOT NULL,
     total_beds INT,
     available_beds INT,
+    food_pkts INT DEFAULT 0,
+    water_liters INT DEFAULT 0,
     is_active BOOLEAN DEFAULT TRUE
 );
 
@@ -68,21 +71,15 @@ CREATE TABLE help_requests (
     status ENUM('PENDING','DISPATCHED','RESOLVED')
 );
 
--- Sample shelter records
+-- 8 Bengaluru shelter records
 INSERT INTO shelters
-(name, address, latitude, longitude, total_beds, available_beds)
+(name, address, latitude, longitude, total_beds, available_beds, food_pkts, water_liters)
 VALUES
-('Bengaluru Emergency Shelter 1',
- 'MG Road, Bengaluru',
- 12.97500000, 77.60600000, 100, 65),
-
-('Bengaluru Emergency Shelter 2',
- 'Indiranagar, Bengaluru',
- 12.97840000, 77.64080000, 80, 30);
-
--- Sample resource records
-INSERT INTO shelter_resources
-(shelter_id, food_status, water_status, medical_status)
-VALUES
-(1, 'HIGH', 'HIGH', 'MEDIUM'),
-(2, 'MEDIUM', 'HIGH', 'HIGH');
+('Sree Kanteerava Stadium', 'Kasturba Road, Bengaluru', 12.96945000, 77.59270000, 150, 42, 320, 900),
+('Yeshwanthpura TTMC', 'Yeshwanthpur, Bengaluru', 13.01810000, 77.55653000, 100, 28, 250, 700),
+('Kempegowda Bus Station (Majestic)', 'Majestic, Bengaluru', 12.97679000, 77.57260000, 120, 0, 300, 800),
+('Koramangala Indoor Stadium', 'Koramangala, Bengaluru', 12.94351000, 77.62280000, 80, 19, 180, 500),
+('Jayanagar Civic Association', 'Jayanagar, Bengaluru', 12.92651000, 77.58324000, 100, 64, 220, 650),
+('Freedom Park', 'Seshadri Road, Bengaluru', 12.97741000, 77.58190000, 90, 0, 200, 600),
+('Cubbon Park', 'Kasturba Road, Bengaluru', 12.97417000, 77.59342000, 70, 25, 150, 450),
+('Bengaluru Palace', 'Palace Road, Bengaluru', 13.00350000, 77.58910000, 150, 38, 310, 850);
