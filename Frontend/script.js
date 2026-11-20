@@ -1,5 +1,5 @@
 /* =========================================================
-   Emergency Shelter & Resource Locator — Bengaluru (Milestone 1)
+   Emergency Shelter & Resource Locator — Bengaluru (Full Stack)
    ========================================================= */
 
 // 1. Initialize Map Centered on Bengaluru
@@ -51,7 +51,7 @@ window.addEventListener("resize", () => map.invalidateSize());
 // Marker layer group
 const markerLayer = L.layerGroup().addTo(map);
 
-// 8 Bengaluru Shelters (Exact data matching Milestone 1 screenshot)
+// Fallback 8 Bengaluru Shelters (used only if FastAPI backend is offline)
 const defaultShelters = [
   {
     id: 1,
@@ -64,7 +64,7 @@ const defaultShelters = [
     foodPackets: 320,
     water: "900 L",
     medicalKits: "Available",
-    labelPos: "hidden", // popup card is open for this one
+    labelPos: "hidden",
     autoOpenPopup: true
   },
   {
@@ -162,8 +162,8 @@ const defaultShelters = [
 
 let allShelters = [...defaultShelters];
 
-// Normalizer for Chetan's backend server records
-function normalizeShelter(s) {
+// Normalizer matching Afrid's MySQL schema (food_pkts, water_liters) & FastAPI response
+function normalizeShelter(s, index) {
   const openBeds = Number(
     s.available_beds ??
     s.open_beds ??
@@ -179,31 +179,40 @@ function normalizeShelter(s) {
   const lat = parseFloat(s.latitude ?? s.lat);
   const lng = parseFloat(s.longitude ?? s.lng);
 
-  const rawFood = s.food_packets ?? s.food_status ?? s.food ?? "Available";
-  const rawWater = s.water ?? s.water_status ?? s.water_liters ?? "Available";
-  const rawMedical = s.medical_kits ?? s.medical_status ?? "Available";
+  // Match Afrid's exact MySQL columns: food_pkts and water_liters
+  const rawFood = s.food_pkts ?? s.food_packets ?? s.food_status ?? 0;
+  const rawWater = s.water_liters ?? s.water ?? s.water_status ?? 0;
+  const rawMedical = s.medical_kits ?? s.medical_status ?? (openBeds > 0 ? "Available" : "Low");
 
-  // Format food packets
-  const foodPackets = typeof rawFood === "number" ? rawFood : (rawFood === "HIGH" ? 320 : (rawFood === "MEDIUM" ? 150 : (rawFood === "OUT" ? 0 : 200)));
-  // Format water
-  const water = typeof rawWater === "number" ? `${rawWater} L` : (rawWater.toString().includes("L") ? rawWater : "900 L");
+  const foodPackets = typeof rawFood === "number"
+    ? rawFood
+    : (rawFood === "HIGH" ? 320 : (rawFood === "MEDIUM" ? 150 : 0));
+
+  const water = typeof rawWater === "number"
+    ? `${rawWater} L`
+    : (rawWater.toString().includes("L") ? rawWater : `${rawWater} L`);
+
+  const isFirst = index === 0 || (s.name || "").includes("Kanteerava");
 
   return {
     id: s.id,
     name: s.name || "Shelter",
-    shortName: (s.name || "").replace(/Emergency|Shelter|Relief|Community|Center|Hall|Hub|Indoor/gi, "").trim() || s.name,
+    shortName: (s.name || "")
+      .replace(/Emergency|Shelter|Relief|Community|Center|Hall|Hub|Indoor|Stadium|Public/gi, "")
+      .trim() || s.name,
     lat,
     lng,
     openBeds,
     totalBeds,
     foodPackets,
     water,
-    medicalKits: rawMedical === "HIGH" || rawMedical === "Available" ? "Available" : "Limited",
-    labelPos: openBeds === 0 ? "bottom" : (lat > 12.98 ? "top" : "bottom")
+    medicalKits: rawMedical === "HIGH" || rawMedical === "Available" ? "Available" : "Low",
+    labelPos: isFirst ? "hidden" : (openBeds === 0 ? "bottom" : (lat > 12.98 ? "top" : "bottom")),
+    autoOpenPopup: isFirst
   };
 }
 
-// Custom Marker Pin with Label (Matching Screenshot)
+// Custom Marker Pin with Label
 function createMarkerIcon(s) {
   const isFull = s.openBeds === 0;
   const colorClass = isFull ? "full" : "open";
@@ -242,7 +251,7 @@ function createMarkerIcon(s) {
   });
 }
 
-// Build Popup Card matching Screenshot
+// Build Popup Card
 function buildPopupCard(s) {
   const isFull = s.openBeds === 0;
   const statusClass = isFull ? "full" : "open";
@@ -277,11 +286,9 @@ function renderPins() {
   const filterFoodWater = filterFoodWaterEl ? filterFoodWaterEl.checked : false;
 
   let filtered = allShelters.filter((s) => {
-    // Filter 1: Available Beds Only (>0)
     if (filterAvailable && s.openBeds <= 0) {
       return false;
     }
-    // Filter 2: Food & Water Available
     if (filterFoodWater) {
       const hasFood = typeof s.foodPackets === "number" ? s.foodPackets > 0 : s.foodPackets !== "0";
       const hasWater = s.water !== "0 L" && s.water !== "Low" && s.water !== "0";
@@ -306,8 +313,7 @@ function renderPins() {
         autoClose: false
       });
 
-    // Check if this should have popup opened by default
-    if (s.autoOpenPopup || s.name.includes("Kanteerava")) {
+    if (s.autoOpenPopup) {
       targetPopupMarker = marker;
     }
   });
@@ -326,7 +332,7 @@ if (filterAvailableEl) filterAvailableEl.addEventListener("change", renderPins);
 const filterFoodWaterEl = document.getElementById("filter-food-water");
 if (filterFoodWaterEl) filterFoodWaterEl.addEventListener("change", renderPins);
 
-// Step 2: Fetch Live Data from Chetan's Server
+// Fetch Live Data from FastAPI + MySQL Backend
 async function fetchLiveShelters() {
   const badgeEl = document.getElementById("api-badge");
   try {
@@ -336,12 +342,12 @@ async function fetchLiveShelters() {
     const rawList = Array.isArray(data) ? data : (data.shelters || data.data || []);
 
     if (rawList.length > 0) {
-      allShelters = rawList.map(normalizeShelter);
-      if (badgeEl) badgeEl.textContent = `API: ${allShelters.length} Shelters`;
+      allShelters = rawList.map((item, idx) => normalizeShelter(item, idx));
+      if (badgeEl) badgeEl.textContent = `Live MySQL: ${allShelters.length} Shelters`;
     }
   } catch (err) {
-    console.warn("Chetan's server is offline. Displaying 8 Bengaluru shelters:", err.message);
-    if (badgeEl) badgeEl.textContent = `API: 8 Shelters`;
+    console.warn("Backend offline. Displaying fallback Bengaluru shelters:", err.message);
+    if (badgeEl) badgeEl.textContent = `Offline Mode: 8 Shelters`;
   }
   renderPins();
 }

@@ -1,249 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emergency Shelter & Resource Locator</title>
 
   <!-- Leaflet CSS -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <!-- Top Header Bar -->
   <header class="app-header">
-    <div class="brand">
-      <span class="brand-icon">🏠</span>
-      <div>
-        <h1>Emergency Shelter & Resource Locator</h1>
-        <p class="subtitle">SDG 11 · Sustainable Cities and Communities</p>
-      </div>
-    </div>
-    <div class="status-badge">
-      <span class="dot"></span> Live
-    </div>
+    <div class="header-title">Emergency Shelter &amp; Resource Locator &mdash; Bengaluru</div>
+    <div id="api-badge" class="api-badge">Connecting API...</div>
   </header>
 
-  <!-- Main layout -->
-  <main class="layout">
+  <!-- Main Layout -->
+  <main class="main-layout">
 
-    <!-- Sidebar: shelter list -->
+    <!-- Sidebar -->
     <aside class="sidebar">
-      <h2>Nearby Shelters</h2>
-      <p class="muted">Bengaluru · dummy data</p>
+      <div class="sidebar-title">Filter Shelters</div>
 
-      <ul id="shelter-list" class="shelter-list">
-        <!-- Populated by JS -->
-      </ul>
+      <label class="filter-box">
+        <input type="checkbox" id="filter-available" />
+        <span class="filter-text">Available Beds Only (&gt;0)</span>
+      </label>
 
-      <div class="legend">
-        <h3>Legend</h3>
-        <div><span class="pin open"></span> Open</div>
-        <div><span class="pin full"></span> Full</div>
-        <div><span class="pin closed"></span> Closed</div>
+      <label class="filter-box">
+        <input type="checkbox" id="filter-food-water" />
+        <span class="filter-text">Food &amp; Water Available</span>
+      </label>
+
+      <div class="legend-card">
+        <div class="legend-title">Map Legend</div>
+        <div class="legend-item">
+          <span class="legend-dot open"></span>
+          <span>Open Shelter (Beds Available)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot full"></span>
+          <span>Full Shelter (0 Beds)</span>
+        </div>
+        <div class="legend-footer">
+          SDG 11 &middot; Sustainable Cities &amp; Communities<br />
+          Live MySQL + FastAPI Backend
+        </div>
       </div>
     </aside>
 
-    <!-- Map container -->
-    <section class="map-wrap">
+    <!-- Map Area -->
+    <section class="map-container">
       <div id="map"></div>
     </section>
 
-    </main>
-
-  <!-- Footer -->
-  <footer class="app-footer">
-    <span>© 2026 Emergency Shelter Locator · OpenStreetMap & Leaflet</span>
-  </footer>
+  </main>
 
   <!-- Leaflet JS -->
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-  <!-- App logic -->
-  <script>
-    /* ---------------------------------------------------------
-       1. Dummy shelter data (Bengaluru)
-       --------------------------------------------------------- */
-    const shelters = [
-      {
-        id: 1,
-        name: "Indira Gandhi Community Hall",
-        address: "Sampangi Rama Nagar, Bengaluru",
-        lat: 12.9716,
-        lng: 77.5946,
-        status: "open",
-        capacity: { total: 200, occupied: 120 },
-        resources: {
-          beds: 80,
-          food: "Available",
-          water: "Available",
-          medical: "Available",
-          blankets: 50,
-          power: "Yes"
-        },
-        contact: "+91 80 1234 5678"
-      },
-      {
-        id: 2,
-        name: "Koramangala Relief Centre",
-        address: "Koramangala 5th Block, Bengaluru",
-        lat: 12.9352,
-        lng: 77.6245,
-        status: "full",
-        capacity: { total: 150, occupied: 150 },
-        resources: {
-          beds: 0,
-          food: "Low",
-          water: "Available",
-          medical: "Low",
-          blankets: 10,
-          power: "Yes"
-        },
-        contact: "+91 80 8765 4321"
-      }
-    ];
-
-    /* ---------------------------------------------------------
-       2. Initialize map
-       --------------------------------------------------------- */
-    const map = L.map("map", {
-      center: [12.9716, 77.5946],   // Bengaluru centre
-      zoom: 12,
-      zoomControl: true
-    });
-
-    // OpenStreetMap tiles
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    /* ---------------------------------------------------------
-       3. Custom colored markers
-       --------------------------------------------------------- */
-    function makeIcon(color) {
-      return L.divIcon({
-        className: "custom-map-marker",
-        html: innerHTML,
-        iconSize: [180, 50],
-        iconAnchor: [90, isTop ? 40 : 10],
-        popupAnchor: [0, isTop ? -42 : -14]
-      });
-    }
-
-    function buildPopupCard(s) {
-      const isFull = s.openBeds === 0;
-      const statusClass = isFull ? "full" : "open";
-      const statusText = isFull
-        ? `FULL (0 / ${s.totalBeds} Beds)`
-        : `OPEN (${s.openBeds} / ${s.totalBeds} Beds)`;
-
-      const latStr = `${Math.abs(s.lat).toFixed(4)}° N`;
-      const lngStr = `${Math.abs(s.lng).toFixed(4)}° E`;
-
-      return `
-        <div class="shelter-popup-card">
-          <div class="popup-title">${s.name}</div>
-          <div class="popup-status ${statusClass}">
-            <span class="status-bullet">●</span> Status: ${statusText}
-          </div>
-          <div class="popup-detail">Food Packets: ${s.foodPackets} | Water: ${s.water}</div>
-          <div class="popup-detail">Medical Kits: ${s.medicalKits || "Available"}</div>
-          <div class="popup-gps">GPS: ${latStr}, ${lngStr}</div>
-        </div>
-      `;
-    }
-
-    function renderPins() {
-      markerLayer.clearLayers();
-
-      const filterAvailableEl = document.getElementById("filter-available");
-      const filterFoodWaterEl = document.getElementById("filter-food-water");
-
-      const filterAvailable = filterAvailableEl ? filterAvailableEl.checked : false;
-      const filterFoodWater = filterFoodWaterEl ? filterFoodWaterEl.checked : false;
-
-      let filtered = allShelters.filter((s) => {
-        if (filterAvailable && s.openBeds <= 0) return false;
-        if (filterFoodWater) {
-          const hasFood = typeof s.foodPackets === "number" ? s.foodPackets > 0 : s.foodPackets !== "0";
-          const hasWater = s.water !== "0 L" && s.water !== "Low" && s.water !== "0";
-          if (!hasFood || !hasWater) return false;
-        }
-        return true;
-      });
-
-      let targetPopupMarker = null;
-
-      filtered.forEach((s) => {
-        if (isNaN(s.lat) || isNaN(s.lng)) return;
-
-        const marker = L.marker([s.lat, s.lng], {
-          icon: createMarkerIcon(s)
-        })
-          .addTo(markerLayer)
-          .bindPopup(buildPopupCard(s), {
-            maxWidth: 320,
-            autoPan: false,
-            closeOnClick: false,
-            autoClose: false
-          });
-
-        if (s.autoOpenPopup || s.name.includes("Kanteerava")) {
-          targetPopupMarker = marker;
-        }
-      });
-
-      if (targetPopupMarker) {
-        targetPopupMarker.openPopup();
-      }
-
-      map.invalidateSize();
-    }
-
-    const filterAvailableEl = document.getElementById("filter-available");
-    if (filterAvailableEl) filterAvailableEl.addEventListener("change", renderPins);
-
-    const filterFoodWaterEl = document.getElementById("filter-food-water");
-    if (filterFoodWaterEl) filterFoodWaterEl.addEventListener("change", renderPins);
-
-    async function fetchLiveShelters() {
-      const badgeEl = document.getElementById("api-badge");
-      try {
-        const res = await fetch("http://127.0.0.1:8000/shelters");
-        if (!res.ok) throw new Error("HTTP error " + res.status);
-        const data = await res.json();
-        const rawList = Array.isArray(data) ? data : (data.shelters || data.data || []);
-
-        if (rawList.length > 0) {
-          allShelters = rawList.map(normalizeShelter);
-          if (badgeEl) badgeEl.textContent = `API: ${allShelters.length} Shelters`;
-        }
-      } catch (err) {
-        console.warn("Chetan's server is offline. Displaying 8 Bengaluru shelters:", err.message);
-        if (badgeEl) badgeEl.textContent = `API: 8 Shelters`;
-      }
-      renderPins();
-    }
-
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", fetchLiveShelters);
-    } else {
-      fetchLiveShelters();
-    }
-  </script>
+  <!-- App Logic -->
+  <script src="script.js"></script>
 </body>
+
 </html>
