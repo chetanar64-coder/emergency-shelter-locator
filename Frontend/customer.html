@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Citizen Registration & Resource Request - Emergency Shelter Locator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="scrollable-page">
+
+  <!-- Top Header Bar with Navigation -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="header-title">
+        <span>🛡️</span> Emergency Shelter &amp; Resource Locator &mdash; Bengaluru
+      </div>
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link">🗺️ Live Map</a>
+        <a href="customer.html" class="nav-link active">📝 Citizen Registration</a>
+        <a href="admin.html" class="nav-link">⚙️ Admin Dashboard</a>
+      </nav>
+    </div>
+    <div id="api-badge" class="api-badge">Connecting API...</div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="dashboard-container">
+
+    <div class="page-intro">
+      <div>
+        <h1 class="page-title">Citizen Bed &amp; Emergency Supply Registration</h1>
+        <p class="page-subtitle">Instantly reserve emergency shelter beds, food rations, and drinking water during crises.</p>
+      </div>
+      <div>
+        <a href="index.html" class="btn btn-secondary btn-sm">🗺️ View Map Availability</a>
+      </div>
+    </div>
+
+    <!-- Alert / Status Container -->
+    <div id="alert-box" style="display: none;"></div>
+
+    <!-- Confirmation Card (Hidden by default, shown after successful reservation) -->
+    <div id="confirmation-section" style="display: none;"></div>
+
+    <!-- Registration Grid -->
+    <div class="form-grid" id="registration-layout" style="grid-template-columns: 3fr 2fr;">
+
+      <!-- Registration Form Panel -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>👤</span> Citizen Registration Details
+          </div>
+          <span class="badge badge-pending">Instant Allocation</span>
+        </div>
+        <div class="panel-body">
+          <form id="reservation-form">
+
+            <div class="form-grid">
+              <!-- Full Name -->
+              <div class="form-group full-width">
+                <label class="form-label" for="citizen-name">Full Name <span class="req">*</span></label>
+                <input class="form-input" type="text" id="citizen-name" required placeholder="e.g. Ramesh Kumar" />
+              </div>
+
+              <!-- Phone Number -->
+              <div class="form-group full-width">
+                <label class="form-label" for="citizen-phone">Phone Number <span class="req">*</span></label>
+                <input class="form-input" type="tel" id="citizen-phone" required placeholder="e.g. 9876543210" pattern="[0-9]{10}" maxlength="10" />
+                <span class="form-helper">10-digit mobile number for OTP and check-in confirmation.</span>
+              </div>
+
+              <!-- Shelter Dropdown -->
+              <div class="form-group full-width">
+                <label class="form-label" for="shelter-select">Select Bengaluru Shelter <span class="req">*</span></label>
+                <select class="form-select" id="shelter-select" required>
+                  <option value="">-- Loading available shelters... --</option>
+                </select>
+                <span class="form-helper">Shelters with 0 beds are marked as FULL and cannot accept new reservations.</span>
+              </div>
+
+              <!-- Beds Needed -->
+              <div class="form-group">
+                <label class="form-label" for="beds-requested">Beds Needed <span class="req">*</span></label>
+                <input class="form-input" type="number" id="beds-requested" required min="0" max="50" value="1" />
+                <span class="form-helper" id="beds-helper">Enter 0 if you only require food rations or drinking water.</span>
+              </div>
+
+              <!-- Food Packets -->
+              <div class="form-group">
+                <label class="form-label" for="food-requested">Food Packets (Optional)</label>
+                <input class="form-input" type="number" id="food-requested" min="0" max="200" value="0" />
+              </div>
+
+              <!-- Water Liters -->
+              <div class="form-group full-width">
+                <label class="form-label" for="water-requested">Drinking Water in Liters (Optional)</label>
+                <input class="form-input" type="number" id="water-requested" min="0" max="500" value="0" />
+              </div>
+
+              <!-- Submit Button -->
+              <div class="form-group full-width" style="margin-top: 10px;">
+                <button type="submit" id="submit-btn" class="btn btn-primary" style="width: 100%; padding: 12px;">
+                  🔒 Confirm &amp; Reserve Shelter
+                </button>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Selected Shelter Live Overview Card -->
+      <aside class="panel-card" style="height: fit-content;">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>📍</span> Selected Shelter Status
+          </div>
+          <span id="shelter-status-badge" class="badge badge-open">Select Below</span>
+        </div>
+        <div class="panel-body" id="shelter-details-body">
+          <p style="color: #64748b; font-size: 13.5px;">Choose a shelter from the dropdown to see its real-time capacity and location.</p>
+        </div>
+      </aside>
+
+    </div>
+
+  </main>
+
+  <script src="customer.js"></script>
+</body>
+
+</html>

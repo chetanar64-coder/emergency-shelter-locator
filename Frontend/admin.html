@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Resource & Shelter Control Dashboard - Emergency Shelter Locator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="scrollable-page">
+
+  <!-- Top Header Bar with Navigation -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="header-title">
+        <span>🛡️</span> Emergency Shelter &amp; Resource Locator &mdash; Bengaluru
+      </div>
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link">🗺️ Live Map</a>
+        <a href="customer.html" class="nav-link">📝 Citizen Registration</a>
+        <a href="admin.html" class="nav-link active">⚙️ Admin Dashboard</a>
+      </nav>
+    </div>
+    <div id="api-badge" class="api-badge">Connecting API...</div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="dashboard-container">
+
+    <div class="page-intro">
+      <div>
+        <h1 class="page-title">Admin Resource &amp; Shelter Stock Control</h1>
+        <p class="page-subtitle">Real-time shelter capacity management, resource dispatch, and live citizen reservation tracking.</p>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button id="refresh-all-btn" class="btn btn-secondary btn-sm">🔄 Refresh Data</button>
+        <a href="index.html" class="btn btn-primary btn-sm">🗺️ Open Map</a>
+      </div>
+    </div>
+
+    <!-- Live KPI Summary Cards -->
+    <section class="stats-grid">
+      <!-- Total Available Beds -->
+      <div class="stat-card green">
+        <span class="stat-label">Available Beds (Citywide)</span>
+        <div class="stat-value" id="kpi-available-beds">--</div>
+        <div class="stat-subtext" id="kpi-total-beds">Total Capacity: --</div>
+      </div>
+
+      <!-- Open vs Full Shelters -->
+      <div class="stat-card">
+        <span class="stat-label">Shelter Status</span>
+        <div class="stat-value" id="kpi-shelter-ratio">-- / --</div>
+        <div class="stat-subtext" id="kpi-shelter-subtext">-- Open | -- Full</div>
+      </div>
+
+      <!-- Food Packets -->
+      <div class="stat-card amber">
+        <span class="stat-label">Emergency Food Stock</span>
+        <div class="stat-value" id="kpi-food-stock">--</div>
+        <div class="stat-subtext">Total Packets on Hand</div>
+      </div>
+
+      <!-- Water Stock -->
+      <div class="stat-card">
+        <span class="stat-label">Drinking Water Stock</span>
+        <div class="stat-value" id="kpi-water-stock">--</div>
+        <div class="stat-subtext">Total Liters in Reservoirs</div>
+      </div>
+    </section>
+
+    <!-- Shelter Resource & Capacity Management Table -->
+    <section class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>🏢</span> Bengaluru Shelters Inventory Control
+        </div>
+        <span class="form-helper">Editing values and clicking "Save" immediately updates the MySQL backend and switches map pin colors.</span>
+      </div>
+      <div class="panel-body" style="padding: 0;">
+        <div class="table-responsive">
+          <table class="data-table" id="shelters-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Shelter Name &amp; Address</th>
+                <th>Status</th>
+                <th>Total Beds</th>
+                <th>Avail Beds</th>
+                <th>Food Packets</th>
+                <th>Water (Liters)</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="shelters-tbody">
+              <tr>
+                <td colspan="8" style="text-align: center; padding: 24px; color: #64748b;">
+                  Loading Bengaluru shelters...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Citizen Registrations Table -->
+    <section class="panel-card">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>📋</span> Recent Citizen Bookings &amp; Allocations
+        </div>
+        <button id="refresh-reservations-btn" class="btn btn-secondary btn-sm">🔄 Refresh Bookings</button>
+      </div>
+      <div class="panel-body" style="padding: 0;">
+        <div class="table-responsive">
+          <table class="data-table" id="reservations-table">
+            <thead>
+              <tr>
+                <th>Booking ID</th>
+                <th>Citizen Name</th>
+                <th>Phone Number</th>
+                <th>Assigned Shelter</th>
+                <th>Beds</th>
+                <th>Food Pkts</th>
+                <th>Water (L)</th>
+                <th>OTP</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="reservations-tbody">
+              <tr>
+                <td colspan="9" style="text-align: center; padding: 24px; color: #64748b;">
+                  Loading registrations...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="admin.js"></script>
+</body>
+
+</html>

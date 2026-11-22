@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Emergency Shelter & Resource Locator</title>
+  <title>Emergency Shelter & Resource Locator - Bengaluru</title>
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -14,11 +14,20 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 
-<body>
+<body class="map-page">
 
-  <!-- Top Header Bar -->
+  <!-- Top Header Bar with Navigation -->
   <header class="app-header">
-    <div class="header-title">Emergency Shelter &amp; Resource Locator &mdash; Bengaluru</div>
+    <div class="header-left">
+      <div class="header-title">
+        <span>🛡️</span> Emergency Shelter &amp; Resource Locator &mdash; Bengaluru
+      </div>
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link active">🗺️ Live Map</a>
+        <a href="customer.html" class="nav-link">📝 Citizen Registration</a>
+        <a href="admin.html" class="nav-link">⚙️ Admin Dashboard</a>
+      </nav>
+    </div>
     <div id="api-badge" class="api-badge">Connecting API...</div>
   </header>
 
