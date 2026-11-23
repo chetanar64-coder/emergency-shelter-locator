@@ -1,0 +1,185 @@
+INFO:     Started server process [15892]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+[Init DB] Database schema successfully verified and up-to-date.
+INFO:     127.0.0.1:56868 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56871 - "POST /reservations HTTP/1.1" 201 Created
+INFO:     127.0.0.1:56873 - "GET /reservations/lookup?phone=9876543210 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56875 - "POST /reservations/verify-otp HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\uvicorn\protocols\http\h11_impl.py", line 408, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\uvicorn\middleware\proxy_headers.py", line 69, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\applications.py", line 123, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\middleware\cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\routing.py", line 758, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\routing.py", line 778, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\routing.py", line 299, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\routing.py", line 79, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\routing.py", line 74, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\fastapi\routing.py", line 278, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\fastapi\routing.py", line 193, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\dipak\OneDrive\Desktop\min_proj\emergency-shelter-locator\backend\main.py", line 944, in verify_reservation_otp
+    cursor.execute("UPDATE bed_reservations SET reservation_status = 'VERIFIED' WHERE id = %s", (booking["id"],))
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\mysql\connector\cursor.py", line 416, in execute
+    self._connection.cmd_query(
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\mysql\connector\opentelemetry\context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\mysql\connector\_decorating.py", line 89, in handle_cnx_method
+    raise err
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\mysql\connector\_decorating.py", line 85, in handle_cnx_method
+    return cnx_method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\mysql\connector\connection.py", line 984, in cmd_query
+    result = self._handle_result(
+             ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\mysql\connector\_decorating.py", line 89, in handle_cnx_method
+    raise err
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\mysql\connector\_decorating.py", line 85, in handle_cnx_method
+    return cnx_method(cnx, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dipak\AppData\Roaming\Python\Python311\site-packages\mysql\connector\connection.py", line 745, in _handle_result
+    raise get_exception(packet)
+mysql.connector.errors.DatabaseError: 1265 (01000): Data truncated for column 'reservation_status' at row 1
+INFO:     127.0.0.1:50904 - "GET /reservations/lookup?phone=9876543210 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50906 - "POST /reservations/verify-otp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50908 - "GET /reservations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59098 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50163 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50164 - "GET /shelters/all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49380 - "GET /app/index.html HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49380 - "GET /app/style.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65127 - "GET /app/script.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65127 - "GET /shelters/all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65127 - "GET /shelters/all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51629 - "GET /app/admin-login.html HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51629 - "GET /app/admin.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51629 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51629 - "GET /app/admin.html HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51629 - "GET /app/admin.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51629 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51629 - "GET /admin/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56545 - "GET /admin/shelters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56545 - "GET /app/style.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51629 - "GET /app/script.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51629 - "GET /shelters/all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60243 - "POST /reservations HTTP/1.1" 201 Created
+INFO:     127.0.0.1:60243 - "GET /shelters/all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56296 - "GET /reservations/lookup?otp=944354 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56296 - "GET /app/style.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:56296 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56296 - "GET /app/admin.html HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:56296 - "GET /app/admin.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:56296 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63627 - "GET /admin/shelters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56296 - "GET /admin/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55199 - "GET /reservations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65398 - "POST /reservations/verify-otp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65398 - "GET /reservations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63411 - "GET /app/admin-login.html HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:63411 - "GET /app/style.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60442 - "GET /app/admin.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60442 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60442 - "GET /app/admin.html HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60442 - "GET /app/admin.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60442 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63411 - "GET /admin/shelters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60442 - "GET /admin/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60442 - "POST /admin/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55811 - "POST /admin/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55811 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65475 - "GET /admin/shelters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55811 - "GET /admin/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57543 - "GET /app/index.html HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57543 - "GET /app/script.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57543 - "GET /shelters/all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51557 - "POST /reservations HTTP/1.1" 201 Created
+INFO:     127.0.0.1:51557 - "GET /shelters/all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52428 - "GET /reservations/lookup?otp=147218 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58583 - "GET /app/style.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58583 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58583 - "GET /app/admin.html HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58583 - "GET /app/admin.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58583 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50281 - "GET /admin/shelters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58583 - "GET /admin/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49375 - "GET /reservations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54853 - "POST /reservations/verify-otp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54853 - "GET /reservations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63812 - "GET /reservations/lookup?otp=147218 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57858 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57858 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63224 - "GET /admin/shelters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57858 - "GET /admin/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57858 - "GET /reservations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56116 - "POST /reservations HTTP/1.1" 201 Created
+INFO:     127.0.0.1:56116 - "GET /shelters/all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58292 - "GET /reservations/lookup?otp=764073 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55622 - "GET /app/admin-login.html HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64826 - "GET /app/admin.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55622 - "GET /app/style.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55622 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55622 - "GET /app/admin.html HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55622 - "GET /app/admin.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55622 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64826 - "GET /admin/shelters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55622 - "GET /admin/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51023 - "GET /reservations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65394 - "POST /reservations/verify-otp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65394 - "GET /reservations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49684 - "GET /app/admin.html HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49684 - "GET /app/style.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58093 - "GET /app/admin.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60580 - "GET /app/admin.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60580 - "GET /admin/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58093 - "GET /admin/shelters HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60580 - "GET /admin/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60807 - "GET /app/index.html HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60807 - "GET /app/script.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60807 - "GET /shelters/all HTTP/1.1" 200 OK

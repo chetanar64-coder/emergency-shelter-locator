@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Emergency Shelter & Resource Locator</title>
+  <title>Emergency Shelter & Resource Locator &mdash; Bengaluru</title>
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -18,8 +18,19 @@
 
   <!-- Top Header Bar -->
   <header class="app-header">
-    <div class="header-title">Emergency Shelter &amp; Resource Locator &mdash; Bengaluru</div>
-    <div id="api-badge" class="api-badge">Connecting API...</div>
+    <div class="header-brand-wrap">
+      <span class="header-em-icon">🚨</span>
+      <div class="header-title">Emergency Shelter &amp; Resource Locator &mdash; Bengaluru</div>
+    </div>
+    <div class="header-right-actions">
+      <div id="api-badge" class="api-badge">Connecting API...</div>
+      <button id="btn-open-lookup" class="header-otp-btn" title="View your reservation or verify OTP">
+        📋 My Booking / OTP
+      </button>
+      <a href="admin-login.html" class="admin-portal-link" title="Administrator Login & Management">
+        🛡️ Admin Portal
+      </a>
+    </div>
   </header>
 
   <!-- Main Layout -->
@@ -27,7 +38,71 @@
 
     <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="sidebar-title">Filter Shelters</div>
+
+      <!-- 1. Emergency Location Card -->
+      <div class="emergency-location-card">
+        <div class="em-card-header">
+          <span class="em-icon">📍</span>
+          <span class="em-title">Your Emergency Location</span>
+        </div>
+        <p class="em-desc">Set your location to find the closest shelters and road navigation routes:</p>
+
+        <button id="btn-gps" class="btn-gps">
+          <span class="gps-icon">🎯</span>
+          <span id="btn-gps-text">Use My Current Location (GPS)</span>
+        </button>
+
+        <div class="manual-hint">
+          <span>or click anywhere on the map to place / drag your pin</span>
+        </div>
+
+        <div id="user-location-status" class="location-status-bar">
+          <span class="status-indicator"></span>
+          <span id="location-coords-text">No location selected yet. Click map or GPS.</span>
+        </div>
+
+        <button id="btn-clear-location" class="btn-clear-location" style="display: none;">
+          ✕ Clear Location Selection
+        </button>
+      </div>
+
+      <!-- 2. Active Road Route Navigation Card -->
+      <div id="route-navigation-card" class="route-card" style="display: none;">
+        <div class="route-card-header">
+          <span class="route-badge">🚗 Road Navigation</span>
+          <button id="btn-close-route" class="route-close-btn" title="Cancel route">&times;</button>
+        </div>
+        <div id="route-dest-name" class="route-destination-name">Destination Shelter</div>
+        <div class="route-metrics">
+          <div class="metric-item">
+            <span class="metric-label">Road Distance</span>
+            <span id="route-distance-val" class="metric-val">-- km</span>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <span class="metric-label">Est. Drive Time</span>
+            <span id="route-time-val" class="metric-val">-- mins</span>
+          </div>
+        </div>
+        <div id="route-instructions-text" class="route-note">
+          OSRM road route calculated. Follow indicated route on the map.
+        </div>
+      </div>
+
+      <!-- 3. Recommended Nearby Available Shelters -->
+      <div id="recommendations-container" class="recommendations-wrapper" style="display: none;">
+        <div class="recommendations-header">
+          <span class="rec-icon">⚡</span>
+          <span class="rec-title">Recommended Nearby Shelters</span>
+        </div>
+        <div id="recommendations-notice" class="rec-notice" style="display: none;"></div>
+        <div id="recommendations-list" class="recommendations-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 4. Filter Shelters (Preserved from Milestone 1) -->
+      <div class="sidebar-section-title">Filter Shelters</div>
 
       <label class="filter-box">
         <input type="checkbox" id="filter-available" />
@@ -39,6 +114,7 @@
         <span class="filter-text">Food &amp; Water Available</span>
       </label>
 
+      <!-- 5. Legend Card (Preserved & Enhanced) -->
       <div class="legend-card">
         <div class="legend-title">Map Legend</div>
         <div class="legend-item">
@@ -49,11 +125,20 @@
           <span class="legend-dot full"></span>
           <span>Full Shelter (0 Beds)</span>
         </div>
+        <div class="legend-item">
+          <span class="legend-dot user-loc"></span>
+          <span>Your Emergency Location</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-line route-line"></span>
+          <span>OSRM Driving Road Route</span>
+        </div>
         <div class="legend-footer">
           SDG 11 &middot; Sustainable Cities &amp; Communities<br />
-          Live MySQL + FastAPI Backend
+          Instant Admission OTP &middot; No Registration Needed
         </div>
       </div>
+
     </aside>
 
     <!-- Map Area -->
@@ -62,6 +147,146 @@
     </section>
 
   </main>
+
+  <!-- ==================== Citizen Reservation Modal (No Registration Required) ==================== -->
+  <div id="reservation-modal" class="modal-overlay modal-hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-head-title">
+          <span style="font-size: 20px;">🛏️</span>
+          <h3>Reserve Bed &amp; Relief Supplies</h3>
+        </div>
+        <button id="close-reservation-modal" class="modal-x-btn">&times;</button>
+      </div>
+
+      <div class="res-shelter-summary">
+        <div id="res-shelter-title" class="res-shelter-name">Shelter Name</div>
+        <div id="res-shelter-address" class="res-shelter-sub">Address</div>
+        <div class="res-capacity-row">
+          <span class="res-pill pill-beds" id="res-pill-beds">🛏️ -- Beds Open</span>
+          <span class="res-pill pill-food" id="res-pill-food">🍱 -- Food Pkts</span>
+          <span class="res-pill pill-water" id="res-pill-water">💧 -- Water L</span>
+        </div>
+      </div>
+
+      <div class="res-notice-banner">
+        🔒 <strong>No account registration required.</strong> Enter your contact number below to immediately receive a 6-digit admission OTP code for gate entry.
+      </div>
+
+      <form id="reservation-form" class="reservation-form">
+        <input type="hidden" id="res-shelter-id" />
+
+        <div class="res-form-group">
+          <label for="res-citizen-name">Your Full Name *</label>
+          <input type="text" id="res-citizen-name" required placeholder="e.g. Ramesh Kumar" autofocus />
+        </div>
+
+        <div class="res-form-group">
+          <label for="res-citizen-phone">Mobile Phone Number * (For Admission OTP)</label>
+          <input type="tel" id="res-citizen-phone" required placeholder="e.g. 9876543210" pattern="[0-9+ -]{8,15}" />
+        </div>
+
+        <div class="res-grid-3">
+          <div class="res-form-group">
+            <label for="res-beds-count">Beds / Seats *</label>
+            <input type="number" id="res-beds-count" min="0" value="1" required />
+            <small id="res-beds-limit" style="font-size: 11px; color: #64748b;"></small>
+          </div>
+
+          <div class="res-form-group">
+            <label for="res-food-count">Food Packets</label>
+            <input type="number" id="res-food-count" min="0" value="1" />
+          </div>
+
+          <div class="res-form-group">
+            <label for="res-water-count">Drinking Water (L)</label>
+            <input type="number" id="res-water-count" min="0" value="2" />
+          </div>
+        </div>
+
+        <div class="res-modal-actions">
+          <button type="button" id="cancel-reservation-btn" class="btn-res-cancel">Cancel</button>
+          <button type="submit" id="submit-reservation-btn" class="btn-res-confirm">
+            <span id="res-btn-text">Confirm &amp; Generate Admission OTP</span>
+            <span id="res-btn-spinner" class="spinner-sm" style="display: none;"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== OTP Confirmation Modal ==================== -->
+  <div id="otp-confirmation-modal" class="modal-overlay modal-hidden">
+    <div class="modal-card otp-card">
+      <div class="otp-success-icon">🎉</div>
+      <h3 class="otp-modal-title">Emergency Reservation Confirmed!</h3>
+      <p class="otp-modal-sub">Your shelter admission pass has been registered.</p>
+
+      <div class="otp-display-box">
+        <span class="otp-label">YOUR ADMISSION OTP CODE</span>
+        <div id="otp-code-number" class="otp-big-code">000 000</div>
+        <div id="otp-booking-id" class="otp-booking-ref">Confirmation ID: #BKG-000</div>
+      </div>
+
+      <div class="otp-summary-box">
+        <div class="otp-sum-item">
+          <span class="otp-sum-label">Reserved Shelter:</span>
+          <strong id="otp-shelter-name">--</strong>
+        </div>
+        <div class="otp-sum-item">
+          <span class="otp-sum-label">Citizen:</span>
+          <strong id="otp-citizen-name">--</strong>
+        </div>
+        <div class="otp-sum-item">
+          <span class="otp-sum-label">Allocated Resources:</span>
+          <span id="otp-resources-text" style="font-weight: 700; color: #166534;">--</span>
+        </div>
+        <div class="otp-sum-item">
+          <span class="otp-sum-label">Validity:</span>
+          <span style="font-weight: 600; color: #b45309;">24 Hours from now</span>
+        </div>
+      </div>
+
+      <div class="otp-instructions">
+        💡 <strong>Show this 6-digit OTP code</strong> at the reception or gate of the shelter to claim your reserved beds, food, and water supplies.
+      </div>
+
+      <div class="otp-card-actions">
+        <button id="btn-otp-navigate" class="btn-otp-nav">
+          🚗 Navigate to this Shelter (Road Route)
+        </button>
+        <button id="btn-otp-done" class="btn-otp-close">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== Citizen Booking Lookup Modal ==================== -->
+  <div id="lookup-modal" class="modal-overlay modal-hidden">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-head">
+        <div class="modal-head-title">
+          <span style="font-size: 20px;">🔍</span>
+          <h3>Find My Active Booking / OTP</h3>
+        </div>
+        <button id="close-lookup-modal" class="modal-x-btn">&times;</button>
+      </div>
+
+      <div style="padding: 18px 20px;">
+        <p style="font-size: 13px; color: #475569; margin-bottom: 14px;">
+          Did you already reserve a bed or supplies? Enter your phone number or OTP code to look up your booking:
+        </p>
+
+        <form id="lookup-form" style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <input type="text" id="lookup-input" placeholder="Enter phone number or 6-digit OTP" required style="flex: 1; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 13.5px;" />
+          <button type="submit" class="btn-primary" style="padding: 9px 16px;">Search</button>
+        </form>
+
+        <div id="lookup-results" style="max-height: 240px; overflow-y: auto;"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login &mdash; Emergency Shelter Management</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="login-body">
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-icon">🛡️</div>
+        <h1>Admin Portal</h1>
+        <p class="login-subtitle">Emergency Shelter Management System</p>
+      </div>
+
+      <div id="login-alert" class="alert-box alert-hidden"></div>
+
+      <form id="admin-login-form" class="login-form">
+        <div class="form-group">
+          <label for="username_or_email">Admin Username or Email</label>
+          <input
+            type="text"
+            id="username_or_email"
+            name="username_or_email"
+            placeholder="e.g. admin or admin@shelter.org"
+            required
+            autocomplete="username"
+            autofocus
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your admin password"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+
+        <div class="form-row-between">
+          <label class="remember-label">
+            <input type="checkbox" id="remember-me" checked />
+            <span>Keep me signed in</span>
+          </label>
+        </div>
+
+        <button type="submit" id="login-submit-btn" class="btn-primary btn-block">
+          <span id="btn-text">Sign In to Dashboard</span>
+          <span id="btn-spinner" class="spinner-sm" style="display: none;"></span>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <div class="demo-credentials-box">
+          <div class="demo-title">🔑 Default Administrator Credentials</div>
+          <div class="demo-details">
+            <span>Username: <strong>admin</strong></span> &bull; 
+            <span>Password: <strong>Admin@Shelter2026</strong></span>
+          </div>
+        </div>
+
+        <div class="back-link-wrapper">
+          <a href="index.html" class="back-link">&larr; Return to Public Shelter Locator</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:8000";
+
+    // If already logged in with valid token, redirect to dashboard
+    const existingToken = localStorage.getItem("admin_token");
+    if (existingToken) {
+      fetch(`${API_BASE}/admin/me`, {
+        headers: { "Authorization": `Bearer ${existingToken}` }
+      })
+      .then(res => {
+        if (res.ok) window.location.href = "admin.html";
+        else localStorage.removeItem("admin_token");
+      })
+      .catch(() => {});
+    }
+
+    const loginForm = document.getElementById("admin-login-form");
+    const loginAlert = document.getElementById("login-alert");
+    const submitBtn = document.getElementById("login-submit-btn");
+    const btnText = document.getElementById("btn-text");
+    const btnSpinner = document.getElementById("btn-spinner");
+
+    function showAlert(msg, isError = true) {
+      loginAlert.textContent = msg;
+      loginAlert.className = isError ? "alert-box alert-error" : "alert-box alert-success";
+      loginAlert.style.display = "block";
+    }
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      loginAlert.style.display = "none";
+
+      const identifier = document.getElementById("username_or_email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!identifier || !password) {
+        showAlert("Please enter both username/email and password.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      btnText.textContent = "Authenticating...";
+      btnSpinner.style.display = "inline-block";
+
+      try {
+        const response = await fetch(`${API_BASE}/admin/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username_or_email: identifier,
+            password: password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || "Authentication failed. Please verify credentials.");
+        }
+
+        // Save token and admin info
+        localStorage.setItem("admin_token", data.access_token);
+        localStorage.setItem("admin_user", JSON.stringify(data.admin));
+
+        showAlert("Authentication successful! Redirecting...", false);
+        setTimeout(() => {
+          window.location.href = "admin.html";
+        }, 600);
+
+      } catch (err) {
+        showAlert(err.message || "Unable to connect to backend server. Make sure FastAPI is running on port 8000.");
+      } finally {
+        submitBtn.disabled = false;
+        btnText.textContent = "Sign In to Dashboard";
+        btnSpinner.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>

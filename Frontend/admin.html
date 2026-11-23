@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard &mdash; Emergency Shelter Management</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin-body">
+
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="brand-wrapper">
+      <span class="brand-shield">🛡️</span>
+      <div class="admin-title">Emergency Shelter Command Center &mdash; Admin Dashboard</div>
+    </div>
+    <div class="admin-nav-actions">
+      <div id="admin-user-badge" class="admin-user-pill">
+        <span>👤</span>
+        <span id="admin-name-display">Administrator</span>
+      </div>
+      <a href="index.html" class="btn-header-link" target="_blank" rel="noopener">
+        🗺️ View Public Map
+      </a>
+      <button id="logout-btn" class="btn-header-link btn-logout">
+        Sign Out
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="admin-main-container">
+
+    <!-- Overview Statistics Cards -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Total Shelters</span>
+          <span id="stat-total-shelters" class="stat-value">--</span>
+          <span class="stat-sub">Registered facilities</span>
+        </div>
+        <div class="stat-icon icon-blue">🏢</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Active Shelters</span>
+          <span id="stat-active-shelters" class="stat-value">--</span>
+          <span class="stat-sub" id="stat-inactive-sub">-- inactive</span>
+        </div>
+        <div class="stat-icon icon-green">✅</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Full Shelters</span>
+          <span id="stat-full-shelters" class="stat-value">--</span>
+          <span class="stat-sub">Zero available capacity</span>
+        </div>
+        <div class="stat-icon icon-red">⚠️</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Available Beds</span>
+          <span id="stat-available-beds" class="stat-value">--</span>
+          <span class="stat-sub" id="stat-total-cap-sub">of -- total capacity</span>
+        </div>
+        <div class="stat-icon icon-purple">🛏️</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Citizen Bookings</span>
+          <span id="stat-reservations" class="stat-value">--</span>
+          <span class="stat-sub">Active OTP reservations</span>
+        </div>
+        <div class="stat-icon icon-amber">📋</div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <div style="display: flex; gap: 10px; margin-top: 4px;">
+      <button id="tab-shelters-btn" class="btn-primary" style="padding: 9px 18px; font-size: 13.5px;">
+        🏢 Shelters Management
+      </button>
+      <button id="tab-reservations-btn" class="btn-secondary" style="padding: 9px 18px; font-size: 13.5px;">
+        📋 Citizen Reservations &amp; OTPs
+      </button>
+    </div>
+
+    <!-- View 1: Shelter Management Section -->
+    <section id="view-shelters" class="management-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>Emergency Shelters Directory</h2>
+          <p>Real-time status, bed allocations, and relief resource management</p>
+        </div>
+
+        <div class="controls-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="shelter-search-input" placeholder="Search shelter by name or address..." />
+          </div>
+
+          <select id="status-filter-select" class="filter-select">
+            <option value="all">All Shelters</option>
+            <option value="active">Active Only</option>
+            <option value="available">Available Capacity (&gt;0)</option>
+            <option value="full">Full Shelters (0 Beds)</option>
+            <option value="inactive">Inactive Only</option>
+          </select>
+
+          <button id="refresh-data-btn" class="btn-secondary" title="Refresh Live Data">
+            🔄 Refresh
+          </button>
+
+          <button id="open-add-modal-btn" class="btn-primary">
+            ➕ Add New Shelter
+          </button>
+        </div>
+      </div>
+
+      <!-- Shelters Table -->
+      <div class="table-responsive">
+        <table class="shelters-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Shelter Name &amp; Address</th>
+              <th>GPS Location</th>
+              <th>Bed Capacity</th>
+              <th>Supplies &amp; Medicine</th>
+              <th>Contact Phone</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="shelters-table-body">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 28px; color: #64748b;">
+                Loading shelter records from database...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- View 2: Citizen Reservations & OTP Verifications Section -->
+    <section id="view-reservations" class="management-section" style="display: none;">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>Citizen Emergency Reservations &amp; OTP Verifications</h2>
+          <p>Instant citizen admissions &bull; No user account registration required</p>
+        </div>
+
+        <div class="controls-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="res-search-input" placeholder="Search by citizen name, phone, or OTP..." />
+          </div>
+
+          <button id="refresh-reservations-btn" class="btn-secondary">
+            🔄 Refresh Bookings
+          </button>
+        </div>
+      </div>
+
+      <!-- Reservations Table -->
+      <div class="table-responsive">
+        <table class="shelters-table">
+          <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>Admission OTP</th>
+              <th>Citizen Details</th>
+              <th>Shelter</th>
+              <th>Allocated Resources</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reservations-table-body">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 28px; color: #64748b;">
+                Loading reservations...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Add / Edit Shelter Modal -->
+  <div id="shelter-modal" class="modal-overlay modal-hidden">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="modal-title">Add Emergency Shelter</h3>
+        <button id="close-shelter-modal-btn" class="modal-close-btn">&times;</button>
+      </div>
+      <form id="shelter-form">
+        <div class="modal-body">
+          <input type="hidden" id="shelter-form-id" />
+
+          <div class="form-group">
+            <label for="form-name">Shelter Name *</label>
+            <input type="text" id="form-name" required placeholder="e.g. Sree Kanteerava Indoor Stadium" />
+          </div>
+
+          <div class="form-group">
+            <label for="form-address">Full Address *</label>
+            <input type="text" id="form-address" required placeholder="e.g. Kasturba Road, Sampangi Rama Nagar, Bengaluru" />
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="form-lat">Latitude *</label>
+              <input type="number" step="any" id="form-lat" required placeholder="12.9694" />
+            </div>
+            <div class="form-group">
+              <label for="form-lng">Longitude *</label>
+              <input type="number" step="any" id="form-lng" required placeholder="77.5927" />
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="form-total-beds">Total Bed Capacity *</label>
+              <input type="number" min="0" id="form-total-beds" required placeholder="150" />
+            </div>
+            <div class="form-group">
+              <label for="form-available-beds">Available Beds/Seats *</label>
+              <input type="number" min="0" id="form-available-beds" required placeholder="42" />
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="form-food">Food Packets (Qty)</label>
+              <input type="number" min="0" id="form-food" value="0" />
+            </div>
+            <div class="form-group">
+              <label for="form-water">Drinking Water (Liters)</label>
+              <input type="number" min="0" id="form-water" value="0" />
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="form-medical">Medicine Availability</label>
+              <select id="form-medical">
+                <option value="Available">Available (First Aid &amp; Meds Ready)</option>
+                <option value="Low">Low / Limited Stock</option>
+                <option value="None">None / Depleted</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="form-contact">Emergency Contact Phone *</label>
+              <input type="text" id="form-contact" required placeholder="+91 80 2222 0001" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="form-description">Additional Instructions or Description</label>
+            <textarea id="form-description" rows="2" placeholder="e.g. Enter through Gate 2. Doctor on site. Triage area operational."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="remember-label">
+              <input type="checkbox" id="form-active" checked />
+              <span><strong>Active Operational Status</strong> (Uncheck to mark Inactive)</span>
+            </label>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancel-shelter-modal-btn" class="btn-secondary">Cancel</button>
+          <button type="submit" id="save-shelter-btn" class="btn-primary">Save Shelter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Quick Availability Modal -->
+  <div id="availability-modal" class="modal-overlay modal-hidden">
+    <div class="modal-container" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3>Quick Availability Update</h3>
+        <button id="close-avail-modal-btn" class="modal-close-btn">&times;</button>
+      </div>
+      <form id="avail-form">
+        <div class="modal-body">
+          <input type="hidden" id="avail-form-id" />
+          <p id="avail-shelter-name" style="font-weight: 700; color: #0b457f;"></p>
+
+          <div class="form-group">
+            <label for="avail-input-beds">Available Beds/Seats *</label>
+            <input type="number" min="0" id="avail-input-beds" required />
+            <small id="avail-cap-hint" style="color: #64748b; font-size: 12px;"></small>
+          </div>
+
+          <div class="form-group">
+            <label for="avail-input-food">Food Packets (Count)</label>
+            <input type="number" min="0" id="avail-input-food" />
+          </div>
+
+          <div class="form-group">
+            <label for="avail-input-water">Drinking Water (Liters)</label>
+            <input type="number" min="0" id="avail-input-water" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancel-avail-btn" class="btn-secondary">Cancel</button>
+          <button type="submit" class="btn-primary">Update Live Availability</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal-overlay modal-hidden">
+    <div class="modal-container" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3>Confirm Delete Shelter</h3>
+        <button id="close-delete-modal-btn" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong id="delete-shelter-name"></strong>?</p>
+        <p style="color: #dc2626; font-size: 12.5px; margin-top: 6px;">
+          This will permanently remove the shelter and its associated records from the emergency database.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="cancel-delete-btn" class="btn-secondary">Cancel</button>
+        <button type="button" id="confirm-delete-btn" class="btn-danger">Delete Shelter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
