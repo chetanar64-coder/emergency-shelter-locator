@@ -2,7 +2,7 @@
    Emergency Shelter & Resource Locator — Bengaluru (Full Stack v2.0)
    ========================================================= */
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "http://127.0.0.1:8001";
 
 // 1. Initialize Map Centered on Bengaluru
 const map = L.map("map", {

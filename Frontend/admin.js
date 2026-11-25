@@ -2,7 +2,7 @@
    Emergency Shelter Locator — Admin Dashboard JavaScript Logic
    ========================================================= */
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "http://127.0.0.1:8001";
 
 let adminToken = localStorage.getItem("admin_token");
 let allShelters = [];
